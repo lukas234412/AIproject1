@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lista zadań</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+    form.add { display: flex; gap: .5rem; }
+    input[type=text] { flex: 1; padding: .5rem; font-size: 1rem; }
+    button { padding: .5rem .9rem; font-size: 1rem; cursor: pointer; }
+    .error { color: #b00020; margin: .75rem 0; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #eee; }
+    li span { flex: 1; }
+    li.done span { text-decoration: line-through; color: #888; }
+  </style>
+</head>
+<body>
+  <h1>Lista zadań</h1>
+
+  <form class="add" method="post" action="/items">
+    <input type="text" name="text" placeholder="Wpisz zadanie" autofocus>
+    <button type="submit">Dodaj</button>
+  </form>
+
+  {% if error %}
+  <p class="error" role="alert">{{ error }}</p>
+  {% endif %}
+
+  <ul id="items">
+    {% for item in items %}
+    <li class="{{ 'done' if item.done else '' }}">
+      <form method="post" action="/items/{{ item.id }}/toggle">
+        <button type="submit">{{ '↩' if item.done else '✔' }}</button>
+      </form>
+      <span>{{ item.text }}</span>
+      <form method="post" action="/items/{{ item.id }}/delete">
+        <button type="submit">Usuń</button>
+      </form>
+    </li>
+    {% else %}
+    <li>Brak zadań. Dodaj pierwsze!</li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
