@@ -14,10 +14,18 @@
     li { display: flex; align-items: center; gap: .5rem; padding: .4rem 0; border-bottom: 1px solid #eee; }
     li span { flex: 1; }
     li.done span { text-decoration: line-through; color: #888; }
+    header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; }
+    header form { display: flex; align-items: center; gap: .5rem; }
   </style>
 </head>
 <body>
-  <h1>Lista zadań</h1>
+  <header>
+    <h1>Lista zadań</h1>
+    <form method="post" action="/logout">
+      <span>Zalogowano: <strong>{{ user.login }}</strong></span>
+      <button type="submit">Wyloguj</button>
+    </form>
+  </header>
 
   <form class="add" method="post" action="/items">
     <input type="text" name="text" placeholder="Wpisz zadanie" autofocus>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Logowanie</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 400px; margin: 2rem auto; padding: 0 1rem; }
+    form { display: flex; flex-direction: column; gap: .75rem; }
+    label { display: flex; flex-direction: column; gap: .25rem; }
+    input { padding: .5rem; font-size: 1rem; }
+    button { padding: .5rem .9rem; font-size: 1rem; cursor: pointer; }
+    .error { color: #b00020; }
+    .success { color: #1b5e20; }
+    small { color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Zaloguj się</h1>
+
+  {% if error %}
+  <p class="error" role="alert">{{ error }}</p>
+  {% endif %}
+
+  <form method="post" action="/login">
+    <label>Login
+      <input type="text" name="login" value="{{ login }}" required autocomplete="username" autofocus>
+    </label>
+    <label>Hasło
+      <input type="password" name="password" required autocomplete="current-password">
+    </label>
+    <button type="submit">Zaloguj</button>
+  </form>
+
+  <p>Nie masz konta? <a href="/register">Załóż konto</a></p>
+</body>
+</html>

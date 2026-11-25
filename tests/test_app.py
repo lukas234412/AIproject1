@@ -3,12 +3,22 @@ from fastapi.testclient import TestClient
 
 
 @pytest.fixture
-def client(tmp_path, monkeypatch):
+def anon_client(tmp_path, monkeypatch):
     monkeypatch.setenv("DATABASE_PATH", str(tmp_path / "test.db"))
     from app.main import app
 
     with TestClient(app) as c:
         yield c
+
+
+@pytest.fixture
+def client(anon_client):
+    anon_client.post("/register", data={"login": "tester", "password": "haslo12345"})
+    response = anon_client.post(
+        "/login", data={"login": "tester", "password": "haslo12345"}, follow_redirects=False
+    )
+    assert response.status_code == 303
+    return anon_client
 
 
 def test_home_page_renders_empty_state(client):
@@ -64,3 +74,29 @@ def test_delete_removes_item(client):
 def test_toggle_and_delete_unknown_item_return_404(client):
     assert client.post("/items/999/toggle").status_code == 404
     assert client.post("/items/999/delete").status_code == 404
+
+
+# --- dostęp tylko po zalogowaniu ---
+
+
+def test_anonymous_home_redirects_to_login(anon_client):
+    response = anon_client.get("/", follow_redirects=False)
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
+def test_anonymous_api_returns_401(anon_client):
+    assert anon_client.get("/api/items").status_code == 401
+
+
+@pytest.mark.parametrize("path", ["/items", "/items/1/toggle", "/items/1/delete"])
+def test_anonymous_cannot_modify_items(anon_client, path):
+    response = anon_client.post(path, data={"text": "Hack"}, follow_redirects=False)
+    assert response.status_code == 303
+    assert response.headers["location"] == "/login"
+
+
+def test_logged_in_user_sees_name_and_logout(client):
+    response = client.get("/")
+    assert "tester" in response.text
+    assert 'action="/logout"' in response.text
